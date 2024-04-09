@@ -1,0 +1,12 @@
+{
+  "value": "R$ 86,80",
+  "category": "Impostos",
+  "date": "01/04/2024",
+  "formPayment": "Debito",
+  "description": "FGTS Aniversario",
+  "type": "Essencial",
+  "typeFinance": "ENTRADA",
+  "id": "GUID",
+  "dateCreate": "01/04/2024",
+  "dateUpdate": "01/04/2024"
+}
