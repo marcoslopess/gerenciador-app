@@ -65,9 +65,3 @@ const data: FinanceData[] = [
     typeFinance: "SAIDA",
   },
 ];
-
-export const DATA = [
-  {
-    data: data,
-  },
-];

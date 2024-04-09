@@ -1,11 +1,22 @@
-import React, { useState } from "react";
-import { View, SectionList, SafeAreaView, StatusBar, StyleSheet } from "react-native";
-import MonthSelect from "../../molecules/MonthSelect";
+import React, { useEffect, useState } from "react";
+import { View, SectionList, SafeAreaView, StatusBar, StyleSheet, ActivityIndicator } from "react-native";
+import MonthSelect from "../../components/molecules/MonthSelect";
 import { TextInput, Text } from "react-native-paper";
-import CardValue from "../../molecules/CardValue";
-import { DATA } from "../../../utils/dataExemple";
+import CardValue from "../../components/molecules/CardValue";
+import { useApi } from "../../context/FinancialRecord";
 
 const HomeScreen = () => {
+  const { records, loading, fetchRecords } = useApi();
+  const DATA = [
+    {
+      data: records,
+    },
+  ];
+  useEffect(() => {
+    // Busca os registros quando o componente monta
+    fetchRecords();
+  }, []);
+
   const [month, setMonth] = useState(null);
   const [inicialValue, setInicialValue] = useState();
   const [totalExpenses, setTotalExpenses] = useState(0);

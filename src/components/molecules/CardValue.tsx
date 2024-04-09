@@ -3,6 +3,7 @@ import { Card, Text, Button } from "react-native-paper";
 
 export type FinanceData = {
   value?: string;
+  valueEdit?: number;
   category?: string;
   date?: string;
   formPayment?: string;
