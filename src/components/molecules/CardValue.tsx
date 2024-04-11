@@ -1,11 +1,17 @@
 import React, { useState } from "react";
-import { Card, Text, Button } from "react-native-paper";
+import { View } from "react-native";
+import { MaskService } from "react-native-masked-text";
+import { Card, Text, Button, Avatar, IconButton } from "react-native-paper";
+import { money } from "../../utils/money";
+import { defaultDateFormat } from "../../utils/date";
+import { getCategory, getFormPayment, getType } from "../../utils/strings";
 
 export type FinanceData = {
+  id?: string;
   value?: string;
   valueEdit?: number;
   category?: string;
-  date?: string;
+  date: string;
   formPayment?: string;
   description?: string;
   type?: string;
@@ -14,35 +20,53 @@ export type FinanceData = {
 
 export type PropsCardValue = {
   data: FinanceData;
+  navigation?: any;
 };
 
-const CardValue = ({ ...props }: PropsCardValue) => {
+const CardValue = ({ data, navigation }: PropsCardValue) => {
   const [isVisible, setIsVisible] = useState(false);
 
   return (
-    <Card>
-      <Card.Content>
-        <Text
-          style={{ color: props.data.typeFinance === "ENTRADA" ? "green" : "red" }}
-          theme={{ colors: { primary: "green" } }}
-          variant="titleLarge"
-        >
-          {props.data.value}
-        </Text>
-        <Text variant="bodyMedium">
-          {props.data.category} - {props.data.date}
-        </Text>
-        <Card.Actions>
-          <Button onPress={() => setIsVisible(!isVisible)}>Ver mais</Button>
-        </Card.Actions>
-        {isVisible && (
-          <Card.Content>
-            <Text variant="bodyMedium">{props.data.formPayment}</Text>
-            <Text variant="bodyMedium">{props.data.description}</Text>
-            <Text variant="bodyMedium">{props.data.type}</Text>
-          </Card.Content>
+    <Card style={{ marginLeft: 1, marginRight: 1, marginVertical: 1 }}>
+      <Card.Title
+        title={
+          <Text
+            style={{ color: data.typeFinance === "ENTRADA" ? "green" : "red" }}
+            theme={{ colors: { primary: "green" } }}
+            variant="titleLarge"
+          >
+            {money(data.value)}
+          </Text>
+        }
+        subtitle={
+          <Text variant="bodyMedium">
+            {getCategory(data.category)} - {defaultDateFormat(data.date)}
+          </Text>
+        }
+        left={(props: any) => (
+          <IconButton
+            {...props}
+            size={24}
+            icon="plus"
+            onPress={() => setIsVisible(!isVisible)}
+            style={{ marginLeft: 0 }}
+          />
         )}
-      </Card.Content>
+        right={(props: any) => (
+          <IconButton
+            {...props}
+            icon="pencil"
+            onPress={() => navigation.navigate("Register", { paramKey: { id: data.id, type: "edit" } })}
+          />
+        )}
+      />
+      {isVisible && (
+        <Card.Content>
+          {data.formPayment && <Text variant="bodyMedium">Forma de pagamento: {getFormPayment(data.formPayment)}</Text>}
+          {data.description && <Text variant="bodyMedium">Descrição: {data.description}</Text>}
+          {data.type && <Text variant="bodyMedium">Tipo: {getType(data.type)}</Text>}
+        </Card.Content>
+      )}
     </Card>
   );
 };

@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from "react";
-import { SafeAreaView, StatusBar, StyleSheet, View } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { Keyboard, Platform, SafeAreaView, StatusBar, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
 import { ActivityIndicator, Button, TextInput } from "react-native-paper";
 import { TextInputDate } from "../../components/molecules/TextInputDate";
 import { defaultDateFormat } from "../../utils/date";
@@ -8,29 +8,57 @@ import { listCategory, listFormPayment, listType, listTypeFinance } from "../../
 import { Space } from "../../components/atoms/Space";
 import { TextInputMask } from "react-native-masked-text";
 import { useApi } from "../../context/FinancialRecord";
+import { money } from "../../utils/money";
+import { FinanceData } from "../../components/molecules/CardValue";
+import { DatePickerInput } from "react-native-paper-dates";
 
-const RegisterScreen = ({ navigation }: any) => {
-  const { createRecord, loading } = useApi();
-  const [date, setDate] = useState<any>();
-  const [category, setCategory] = useState<string>("");
-  const [value, setValue] = useState<string>("");
-  const [formPayment, setFormPayment] = useState<string>("");
-  const [description, setDescription] = useState("");
-  const [type, setType] = useState<string>("");
-  const [typeFinance, setTypeFinance] = useState<string>("");
+const RegisterScreen = ({ navigation, route }: any) => {
+  const [typeRegister, setTypeRegister] = useState("create");
+  const { createRecord, fetchRecord, updateRecord, loading } = useApi();
+  const [id, setId] = useState<any>("");
+  const [date, setDate] = useState<Date>(new Date());
+  const [category, setCategory] = useState<any>("");
+  const [value, setValue] = useState<any>("");
+  const [formPayment, setFormPayment] = useState<any>("");
+  const [description, setDescription] = useState<any>("");
+  const [type, setType] = useState<any>("");
+  const [typeFinance, setTypeFinance] = useState<any>("");
   const [open, setOpen] = useState<boolean>(false);
   const [showDropDownCategory, setShowDropDownCategory] = useState<boolean>(false);
   const [showDropDownFormPayment, setShowDropDownFormPayment] = useState<boolean>(false);
   const [showDropDownType, setShowDropDownType] = useState<boolean>(false);
   const [showDropDownTypeFinance, setShowDropDownTypeFinance] = useState<boolean>(false);
 
+  useEffect(() => {
+    if (route.params?.paramKey?.id && route.params?.paramKey?.type && route.params?.paramKey?.type === "edit") {
+      setTypeRegister("edit");
+      const { id } = route.params?.paramKey;
+      (async () => {
+        const record: any = await fetchRecord(id);
+        if (record !== undefined) {
+          setId(record.id);
+          setDate(new Date(record.date));
+          setCategory(record.category);
+          setValue(money(record.value));
+          setFormPayment(record.formPayment);
+          setDescription(record.description);
+          setType(record.type);
+          setTypeFinance(record.typeFinance);
+        }
+      })();
+    }
+  }, [route]);
+
   const onDismissSingle = useCallback(() => {
     setOpen(false);
   }, [setOpen]);
 
   const onConfirmSingle = useCallback(
-    (params: { date: Date | undefined }) => {
+    (params: { date: any }) => {
       setOpen(false);
+      const newDate = new Date(params.date).setHours(0);
+      console.log(new Date(newDate));
+
       setDate(params.date);
     },
     [setOpen]
@@ -88,8 +116,9 @@ const RegisterScreen = ({ navigation }: any) => {
     setTypeFinance(value);
   }, []);
 
-  const handleCreateRecord = async () => {
+  const handleSaveRecord = async () => {
     const valueEdit = value.split("R$")[1].replace(".", "").replace(",", ".");
+
     const data = {
       date,
       category,
@@ -99,9 +128,13 @@ const RegisterScreen = ({ navigation }: any) => {
       type,
       typeFinance,
     };
+    if (route.params?.paramKey?.type === "edit") {
+      await updateRecord(id, data);
+    } else {
+      await createRecord(data);
+    }
 
-    await createRecord(data);
-    setDate(undefined);
+    setDate(new Date());
     setCategory("");
     setValue("");
     setFormPayment("");
@@ -109,6 +142,15 @@ const RegisterScreen = ({ navigation }: any) => {
     setType("");
     setTypeFinance("");
     navigation.navigate("Home");
+  };
+
+  const onChange = (event: any, selectedDate: any) => {
+    const currentDate = selectedDate || date;
+    if (Platform.OS === "ios") {
+      // Ajusta a data para o início do dia (00:00:000)
+      currentDate.setHours(0, 1, 0, 0);
+    }
+    setDate(currentDate);
   };
 
   return (
@@ -119,83 +161,128 @@ const RegisterScreen = ({ navigation }: any) => {
         </View>
       )}
       {!loading && (
-        <View>
-          <TextInput
-            label="Data"
-            value={date === undefined ? "" : defaultDateFormat(date)}
-            onPressIn={onPressOpenDate}
-            editable={false}
-          />
-          <Space kind="bottom" size="10" />
-          <TextInputSelect
-            value={category}
-            label="Categoria"
-            visible={showDropDownCategory}
-            showDropDown={onShowDropDownCategory}
-            onDismiss={onHideDropDownCategory}
-            setValue={onChangeTextCategory}
-            list={listCategory}
-          />
-          <Space kind="bottom" size="10" />
-          <TextInputMask
-            type={"money"}
-            options={{
-              precision: 2,
-              separator: ",",
-              delimiter: ".",
-              unit: "R$",
-              suffixUnit: "",
-            }}
-            value={value}
-            includeRawValueInChangeText={true}
-            onChangeText={(maskedText, rawText) => {
-              setValue(maskedText);
-            }}
-            customTextInput={TextInput}
-            customTextInputProps={{
-              label: "Valor",
-              style: styles,
-            }}
-          />
-          <Space kind="bottom" size="10" />
-          <TextInputSelect
-            value={formPayment}
-            label="Forma de Pagamento"
-            visible={showDropDownFormPayment}
-            showDropDown={onShowDropDownFormPayment}
-            onDismiss={onHideDropDownFormPayment}
-            setValue={onChangeTextFormPayment}
-            list={listFormPayment}
-          />
-          <Space kind="bottom" size="10" />
-          <TextInput label={"Descrição"} value={description} onChangeText={(value: any) => setDescription(value)} />
-          <Space kind="bottom" size="10" />
-          <TextInputSelect
-            value={type}
-            label="Tipo"
-            visible={showDropDownType}
-            showDropDown={onShowDropDownType}
-            onDismiss={onHideDropDownType}
-            setValue={onChangeTextType}
-            list={listType}
-          />
-          <Space kind="bottom" size="10" />
-          <TextInputSelect
-            value={typeFinance}
-            label="Tipo de entrada"
-            visible={showDropDownTypeFinance}
-            showDropDown={onShowDropDownTypeFinance}
-            onDismiss={onHideDropDownTypeFinance}
-            setValue={onChangeTextTypeFinance}
-            list={listTypeFinance}
-          />
-          <Space kind="bottom" size="10" />
-          <TextInputDate visible={open} onDismiss={onDismissSingle} date={date} onConfirm={onConfirmSingle} />
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <View>
+            {/* <TextInput
+              label="Data"
+              value={date === undefined ? "" : defaultDateFormat(date)}
+              onPressIn={onPressOpenDate}
+            /> */}
+            <Space kind="bottom" size="10" />
+            <Space kind="bottom" size="10" />
+            <Space kind="bottom" size="10" />
+            <DatePickerInput
+              locale="pt"
+              label="Birthdate"
+              value={date}
+              onChange={(d) => {
+                const currentDate = d || date;
+                if (Platform.OS === "ios") {
+                  // Ajusta a data para o início do dia (00:00:000)
+                  currentDate.setHours(1, 0, 0, 0);
+                } else {
+                  currentDate.setHours(0, 0, 0, 0);
+                }
 
-          <Button onPress={() => handleCreateRecord()} icon="content-save" mode="contained-tonal" style={styles.button}>
-            SALVAR
-          </Button>
-        </View>
+                setDate(currentDate);
+              }}
+              inputMode="start"
+              validRange={{
+                endDate: new Date(),
+              }}
+            />
+
+            <Space kind="bottom" size="10" />
+            <Space kind="bottom" size="10" />
+            <Space kind="bottom" size="10" />
+            <Space kind="bottom" size="10" />
+            <TextInputSelect
+              value={category}
+              label="Categoria"
+              visible={showDropDownCategory}
+              showDropDown={onShowDropDownCategory}
+              onDismiss={onHideDropDownCategory}
+              setValue={onChangeTextCategory}
+              list={listCategory}
+            />
+            <Space kind="bottom" size="10" />
+            <TextInputMask
+              type={"money"}
+              options={{
+                precision: 2,
+                separator: ",",
+                delimiter: ".",
+                unit: "R$",
+                suffixUnit: "",
+              }}
+              value={value}
+              includeRawValueInChangeText={true}
+              onChangeText={(maskedText, rawText) => {
+                setValue(maskedText);
+              }}
+              customTextInput={TextInput}
+              customTextInputProps={{
+                label: "Valor",
+                style: styles,
+              }}
+            />
+            <Space kind="bottom" size="10" />
+            <TextInputSelect
+              value={formPayment}
+              label="Forma de Pagamento"
+              visible={showDropDownFormPayment}
+              showDropDown={onShowDropDownFormPayment}
+              onDismiss={onHideDropDownFormPayment}
+              setValue={onChangeTextFormPayment}
+              list={listFormPayment}
+            />
+            <Space kind="bottom" size="10" />
+            <TextInput label={"Descrição"} value={description} onChangeText={(value: any) => setDescription(value)} />
+            <Space kind="bottom" size="10" />
+            <TextInputSelect
+              value={type}
+              label="Tipo"
+              visible={showDropDownType}
+              showDropDown={onShowDropDownType}
+              onDismiss={onHideDropDownType}
+              setValue={onChangeTextType}
+              list={listType}
+            />
+            <Space kind="bottom" size="10" />
+            <TextInputSelect
+              value={typeFinance}
+              label="Tipo de entrada"
+              visible={showDropDownTypeFinance}
+              showDropDown={onShowDropDownTypeFinance}
+              onDismiss={onHideDropDownTypeFinance}
+              setValue={onChangeTextTypeFinance}
+              list={listTypeFinance}
+            />
+            <Space kind="bottom" size="10" />
+            {/* <TextInputDate visible={open} onDismiss={onDismissSingle} date={date} onConfirm={onConfirmSingle} /> */}
+
+            <Button onPress={() => handleSaveRecord()} icon="content-save" mode="contained-tonal" style={styles.button}>
+              SALVAR
+            </Button>
+            <Button
+              onPress={() => {
+                setDate(new Date());
+                setCategory("");
+                setValue("");
+                setFormPayment("");
+                setDescription("");
+                setType("");
+                setTypeFinance("");
+                navigation.goBack();
+              }}
+              icon="arrow-left"
+              mode="outlined"
+              style={styles.buttonBack}
+            >
+              VOLTAR
+            </Button>
+          </View>
+        </TouchableWithoutFeedback>
       )}
     </SafeAreaView>
   );
@@ -225,6 +312,11 @@ const styles = StyleSheet.create({
   button: {
     marginLeft: 100,
     marginRight: 100,
+  },
+  buttonBack: {
+    marginLeft: 100,
+    marginRight: 100,
+    marginTop: 10,
   },
 });
 

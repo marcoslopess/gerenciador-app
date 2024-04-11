@@ -9,7 +9,8 @@ type PropsTextInputDate = {
 };
 
 export const TextInputDate = ({ ...props }: PropsTextInputDate) => {
-  const currentDate = new Date();
+  let currentDate = new Date();
+  console.log(currentDate);
 
   return (
     <Fragment>
@@ -21,6 +22,7 @@ export const TextInputDate = ({ ...props }: PropsTextInputDate) => {
         validRange={{
           endDate: currentDate,
         }}
+        onConfirm={props.onConfirm}
       />
     </Fragment>
   );

@@ -12,8 +12,9 @@ type ApiContextType = {
   loading: boolean;
   error: string | null;
   fetchRecords: () => void;
+  fetchRecord: (id: string) => any;
   createRecord: (recordData: any) => void;
-  updateRecord: (id: number, recordData: any) => void;
+  updateRecord: (id: string, recordData: any) => void;
   deleteRecord: (id: number) => void;
 };
 
@@ -22,6 +23,9 @@ const ApiContext = createContext<ApiContextType>({
   loading: false,
   error: null,
   fetchRecords: () => {},
+  fetchRecord: () => {
+    return {};
+  },
   createRecord: () => {},
   updateRecord: () => {},
   deleteRecord: () => {},
@@ -29,6 +33,7 @@ const ApiContext = createContext<ApiContextType>({
 
 export const ApiProvider: React.FC<PropsContextChildren> = ({ children }) => {
   const [records, setRecords] = useState<FinanceData[]>([]);
+  const [record, setRecord] = useState<FinanceData>();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,11 +41,25 @@ export const ApiProvider: React.FC<PropsContextChildren> = ({ children }) => {
   const fetchRecords = async () => {
     setLoading(true);
     try {
-      const response = await api.get("financial-record");
-      console.log(response.data);
-
+      const response = await api.get("");
       setRecords(response.data);
     } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Função para buscar todos os registros
+  const fetchRecord = async (id: string) => {
+    setLoading(true);
+    try {
+      console.log(id);
+      const response = await api.get(`/${id}`);
+      return response.data;
+    } catch (error: any) {
+      console.log(error);
+
       setError(error.message);
     } finally {
       setLoading(false);
@@ -54,15 +73,15 @@ export const ApiProvider: React.FC<PropsContextChildren> = ({ children }) => {
       let config = {
         method: "post",
         maxBodyLength: Infinity,
-        url: "http://191.252.195.43:3000/financial-record",
         headers: {
           accept: "*/*",
           "Content-Type": "application/json",
         },
-        data: JSON.stringify(recordData),
+        data: recordData, //JSON.stringify(recordData),
       };
+      console.log(config);
 
-      await axios.request(config);
+      await api.request(config);
 
       await fetchRecords();
     } catch (error: any) {
@@ -75,12 +94,14 @@ export const ApiProvider: React.FC<PropsContextChildren> = ({ children }) => {
   };
 
   // Função para atualizar um registro existente
-  const updateRecord = async (id: number, recordData: FinanceData) => {
+  const updateRecord = async (id: string, recordData: FinanceData) => {
     setLoading(true);
     try {
-      await api.put(`/financial-record/${id}`, recordData);
+      await api.patch(`/${id}`, recordData);
       fetchRecords();
     } catch (error: any) {
+      console.log(error);
+
       setError(error.message);
     } finally {
       setLoading(false);
@@ -91,7 +112,7 @@ export const ApiProvider: React.FC<PropsContextChildren> = ({ children }) => {
   const deleteRecord = async (id: number) => {
     setLoading(true);
     try {
-      await api.delete(`/financial-record/${id}`);
+      await api.delete(`/${id}`);
       fetchRecords();
     } catch (error: any) {
       setError(error.message);
@@ -107,6 +128,7 @@ export const ApiProvider: React.FC<PropsContextChildren> = ({ children }) => {
         loading,
         error,
         fetchRecords,
+        fetchRecord,
         createRecord,
         updateRecord,
         deleteRecord,

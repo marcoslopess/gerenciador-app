@@ -1,65 +1,70 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
 import HomeScreen from "./src/screens/Home";
 import RegisterScreen from "./src/screens/Register";
 import RelatoriosScreen from "./src/screens/Relatorios";
-import { StyleSheet } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons";
+import { StyleSheet, View, Text } from "react-native";
 import { Provider } from "react-native-paper";
-import { ApiProvider, useApi } from "./src/context/FinancialRecord";
+import { ApiProvider } from "./src/context/FinancialRecord";
 
-const Tab = createMaterialBottomTabNavigator();
+const Drawer = createDrawerNavigator();
+
+function CustomDrawerContent(props: any) {
+  return (
+    <DrawerContentScrollView {...props}>
+      <View style={styles.drawerHeader}>
+        <Text style={styles.drawerHeaderText}>Menu</Text>
+      </View>
+      <DrawerItemList {...props} />
+    </DrawerContentScrollView>
+  );
+}
 
 function App() {
-  const { loading } = useApi();
-
   return (
     <Provider>
       <ApiProvider>
         <NavigationContainer>
-          <Tab.Navigator
-            initialRouteName="Home"
-            activeColor="#f0edf6"
-            inactiveColor="#3e2465"
-            barStyle={{
-              marginBottom: 50,
-              paddingLeft: 50,
-              paddingRight: 50,
-              position: "absolute",
-              borderRadius: 50,
-              backgroundColor: "transparent",
-              height: 60,
-              display: loading ? "none" : "flex",
-            }}
-            labeled={false}
-          >
-            <Tab.Screen
-              name="Home"
-              component={HomeScreen}
-              options={{
-                tabBarIcon: ({ focused }) => <Icon name="home" size={24} color={focused ? "#000" : "#748c94"} />,
-              }}
-            />
-            <Tab.Screen
-              name="Registrar"
-              component={RegisterScreen}
-              options={{
-                tabBarIcon: ({ focused }) => <Icon name="add-circle" size={24} color={focused ? "#000" : "#748c94"} />,
-              }}
-            />
-            <Tab.Screen
-              name="Relatorios"
-              component={RelatoriosScreen}
-              options={{
-                tabBarIcon: ({ focused }) => <Icon name="list" size={24} color={focused ? "#000" : "#748c94"} />,
-              }}
-            />
-          </Tab.Navigator>
+          <Drawer.Navigator initialRouteName="Home" drawerContent={(props) => <CustomDrawerContent {...props} />}>
+            <Drawer.Screen options={{ headerTitleAlign: "center" }} name="Home" component={HomeScreen} />
+            <Drawer.Screen options={{ headerTitleAlign: "center" }} name="Register" component={RegisterScreen} />
+            <Drawer.Screen options={{ headerTitleAlign: "center" }} name="Relatorios" component={RelatoriosScreen} />
+          </Drawer.Navigator>
         </NavigationContainer>
       </ApiProvider>
     </Provider>
   );
 }
+
+const styles = StyleSheet.create({
+  v2Container: {
+    flexDirection: "row",
+    padding: 8,
+  },
+  v3Container: {
+    flexDirection: "column",
+  },
+  row: {
+    flexDirection: "row",
+    paddingHorizontal: 12,
+  },
+  square: {
+    borderRadius: 0,
+  },
+  drawerHeader: {
+    backgroundColor: "#512DA8",
+    height: 140,
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+    flexDirection: "row",
+  },
+  drawerHeaderText: {
+    color: "white",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+});
 
 export default App;
