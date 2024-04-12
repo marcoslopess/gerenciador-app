@@ -8,3 +8,5 @@ export const defaultDateFormat = (date?: Date | number | string) => {
 export const defaultGetDate = (date?: Date | number) => format(date ?? Date.now(), `dd`, { locale: ptBR });
 
 export const formatUS = (date?: Date) => format(date ?? Date.now(), `yyyy-MM-dd`, { locale: ptBR });
+
+export const currentMonth = () => new Date().getMonth() + 1;

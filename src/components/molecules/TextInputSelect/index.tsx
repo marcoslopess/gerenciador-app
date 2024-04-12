@@ -1,19 +1,15 @@
 import { Fragment } from "react";
 import DropDown from "react-native-paper-dropdown";
-
-type PropsList = {
-  label: string;
-  value: string;
-};
+import { Options } from "../../../utils/options";
 
 interface ITextInputSelect {
   label: string;
   visible: boolean;
   showDropDown: () => void;
   onDismiss: () => void;
-  value: string;
+  value: string | number | null;
   setValue: (value: any) => void;
-  list: Array<PropsList>;
+  list: Array<Options>;
   multiSelect?: boolean;
   errorLabel?: string;
 }

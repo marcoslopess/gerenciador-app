@@ -1,51 +1,9 @@
-type Options = {
+export type Options = {
   label: string;
-  value: string;
+  value: string | number;
 };
 
-interface IRegisterAlertPhone {
-  value: string;
-  list: Array<{ _id: string; value: string }>;
-  selectedList: Array<{ _id: string; value: string }>;
-  error: string;
-}
-
-export const listOperator: Array<Options> = [
-  {
-    label: "Selecione uma operadora",
-    value: "",
-  },
-  {
-    label: "Claro",
-    value: "CLARO",
-  },
-  {
-    label: "Vivo",
-    value: "VIVO",
-  },
-  {
-    label: "Tim",
-    value: "TIM",
-  },
-  {
-    label: "Algar Telecom",
-    value: "ALGAR_TELECOM",
-  },
-  {
-    label: "Sercomtel/Ligga",
-    value: "SERCOMTEL/LIGGA",
-  },
-  {
-    label: "Outras Operadoras",
-    value: "OUTRAS_OPERADORAS",
-  },
-];
-
 export const listCategory: Array<Options> = [
-  {
-    label: "Selecione uma categoria",
-    value: "",
-  },
   {
     label: "Alimentação",
     value: "ALIMENTACAO",
@@ -150,7 +108,11 @@ export const listCategory: Array<Options> = [
     label: "Aluguel",
     value: "ALUGUEL",
   },
-];
+].sort((a, b) => a.label.localeCompare(b.label));
+listCategory.unshift({
+  label: "Selecione uma categoria",
+  value: "",
+});
 
 export const listFormPayment: Array<Options> = [
   {
@@ -194,6 +156,25 @@ export const listType: Array<Options> = [
   },
 ];
 
+export const listMonth: Array<Options> = [
+  {
+    label: "Selecione um mês",
+    value: 0,
+  },
+  { value: 1, label: "Janeiro" },
+  { value: 2, label: "Fevereiro" },
+  { value: 3, label: "Março" },
+  { value: 4, label: "Abril" },
+  { value: 5, label: "Maio" },
+  { value: 6, label: "Junho" },
+  { value: 7, label: "Julho" },
+  { value: 8, label: "Agosto" },
+  { value: 9, label: "Setembro" },
+  { value: 10, label: "Outubro" },
+  { value: 11, label: "Novembro" },
+  { value: 12, label: "Dezembro" },
+];
+
 export const listTypeFinance: Array<Options> = [
   {
     label: "Selecione um tipo de registro",
@@ -207,106 +188,4 @@ export const listTypeFinance: Array<Options> = [
     label: "Saída",
     value: "SAIDA",
   },
-];
-
-export const listSituation: IRegisterAlertPhone = {
-  value: "",
-  list: [
-    { _id: "ROUBO", value: "Roubo" },
-    { _id: "FURTO", value: "Furto" },
-    { _id: "PERDA", value: "Perda" },
-  ],
-  selectedList: [],
-  error: "",
-};
-
-const listBrandOne: Array<Options> = [
-  {
-    value: "MOTOROLA",
-    label: "Motorola",
-  },
-  {
-    value: "MULTILASER",
-    label: "Multilaser",
-  },
-  {
-    value: "NOKIA",
-    label: "Nokia",
-  },
-  {
-    value: "POSITIVO",
-    label: "Positivo",
-  },
-  {
-    value: "SAMSUMG",
-    label: "Samsung",
-  },
-  {
-    value: "SIEMENS",
-    label: "Siemens",
-  },
-  {
-    value: "SONY",
-    label: "Sony",
-  },
-  {
-    value: "XIAOMI",
-    label: "Xiaomi",
-  },
-  {
-    value: "ZTE",
-    label: "Zte",
-  },
-  {
-    value: "OUTROS",
-    label: "Outros",
-  },
-];
-
-export const listBrand: Array<Options> = [
-  {
-    label: "Selecione uma marca",
-    value: "",
-  },
-  {
-    value: "ALCATEL",
-    label: "Alcatel",
-  },
-  {
-    value: "Apple",
-    label: "Apple",
-  },
-  {
-    value: "ASUS",
-    label: "Asus",
-  },
-  {
-    value: "BLACKBERRY",
-    label: "BlackBerry",
-  },
-  {
-    value: "BLU",
-    label: "Blu",
-  },
-  {
-    value: "HPE",
-    label: "Hpe",
-  },
-  {
-    value: "HUAWEI",
-    label: "Huawei",
-  },
-  {
-    value: "LENOVO",
-    label: "Lenovo",
-  },
-  {
-    value: "LG",
-    label: "Lg",
-  },
-  {
-    value: "MICROSOFT",
-    label: "Microsoft",
-  },
-  ...listBrandOne,
 ];

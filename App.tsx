@@ -26,10 +26,10 @@ function App() {
     <Provider>
       <ApiProvider>
         <NavigationContainer>
-          <Drawer.Navigator initialRouteName="Home" drawerContent={(props) => <CustomDrawerContent {...props} />}>
+          <Drawer.Navigator initialRouteName="Charts" drawerContent={(props) => <CustomDrawerContent {...props} />}>
             <Drawer.Screen options={{ headerTitleAlign: "center" }} name="Home" component={HomeScreen} />
             <Drawer.Screen options={{ headerTitleAlign: "center" }} name="Register" component={RegisterScreen} />
-            <Drawer.Screen options={{ headerTitleAlign: "center" }} name="Relatorios" component={RelatoriosScreen} />
+            <Drawer.Screen options={{ headerTitleAlign: "center" }} name="Charts" component={RelatoriosScreen} />
           </Drawer.Navigator>
         </NavigationContainer>
       </ApiProvider>
